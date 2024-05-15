@@ -1,23 +1,41 @@
 // app.js
-// const http = require("http");
 const express = require("express");
+const mongoose = require("mongoose");
+
 const app = express();
 
-// const server = http.createServer((req, res) => {
-//   res.writeHead(200, { "Content-Type": "text/plain" });
-//   res.end("Olá Mundo!\\n");
-// });
+// Conecta ao banco de dados MongoDB
+mongoose
+  .connect(process.env.MONGODB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Conexão ao banco de dados estabelecida"))
+  .catch((err) => console.error("Erro ao conectar ao banco de dados:", err));
 
-// server.listen(3000, "127.0.0.1", () => {
-//   console.log("Servidor rodando em <http://127.0.0.1:3000/>");
-// });
+// Define o esquema do modelo
+const Schema = mongoose.Schema;
+const exemploSchema = new Schema({
+  campo: String,
+});
+
+// Cria o modelo
+const Exemplo = mongoose.model("Exemplo", exemploSchema);
 
 app.get("/", (req, res) => {
   res.send("Olá, mundo!");
 });
 
-const PORT = 3000;
+// Rota para salvar um novo registro
+app.get("/salvar", async (req, res) => {
+  const novoExemplo = new Exemplo({
+    mensagem: "Este é um exemplo de valor do campor mensagem",
+  });
+  await novoExemplo.save();
+  res.send("Registro salvo com sucesso!");
+});
 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando em <http://localhost>:${PORT}`);
 });
